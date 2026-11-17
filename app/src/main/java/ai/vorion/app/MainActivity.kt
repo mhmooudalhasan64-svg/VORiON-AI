@@ -53,7 +53,7 @@ private data class ConversationLine(val role: String, val text: String)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { VorionApp() }
+        setContent { VorionAuthGate { VorionApp() } }
     }
 }
 
@@ -94,7 +94,10 @@ private fun VorionChatScreen() {
             gatewayBaseUrl = gatewayUrl,
             // Authentication is intentionally not faked or hardcoded.
             // Connect this to the real sign-in/session flow before enabling live inference.
-            sessionTokenProvider = { null }
+            sessionTokenProvider = {
+                com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+                    ?.getIdToken(false)?.let { kotlinx.coroutines.tasks.await(it).token }
+            }
         )
     }
 
