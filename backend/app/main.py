@@ -1,12 +1,16 @@
+import json
 import os
-import secrets
 from typing import Literal
 
+import firebase_admin
+from firebase_admin import auth as firebase_auth
+from firebase_admin import credentials
+from firebase_admin.exceptions import FirebaseError
 import httpx
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
-app = FastAPI(title="VORION AI Gateway", version="0.1.0")
+app = FastAPI(title="VORION AI Gateway", version="0.2.0")
 
 VORION_SYSTEM_PROMPT = (
     "You are VORION AI, an independent intelligent assistant. "
@@ -34,24 +38,60 @@ class ChatResponse(BaseModel):
     model: str
 
 
-def require_app_token(authorization: str | None = Header(default=None)) -> None:
-    expected = os.getenv("VORION_APP_TOKEN", "")
-    if not expected:
-        raise HTTPException(status_code=503, detail="VORION gateway is not configured")
-    scheme, _, supplied = (authorization or "").partition(" ")
-    if scheme.lower() != "bearer" or not secrets.compare_digest(supplied, expected):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+def get_firebase_app():
+    try:
+        return firebase_admin.get_app()
+    except ValueError:
+        pass
+
+    project_id = os.getenv("FIREBASE_PROJECT_ID", "vorion-ai-bdd6b")
+    service_account_json = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON", "").strip()
+    try:
+        if service_account_json:
+            service_account_info = json.loads(service_account_json)
+            credential = credentials.Certificate(service_account_info)
+        else:
+            # Supports GOOGLE_APPLICATION_CREDENTIALS on hosts that provide a file.
+            credential = credentials.ApplicationDefault()
+        return firebase_admin.initialize_app(
+            credential,
+            {"projectId": project_id},
+        )
+    except Exception as error:
+        raise HTTPException(
+            status_code=503,
+            detail="Firebase Admin authentication is not configured on the gateway",
+        ) from error
+
+
+def require_firebase_user(
+    authorization: str | None = Header(default=None),
+) -> dict:
+    scheme, _, token = (authorization or "").partition(" ")
+    if scheme.lower() != "bearer" or not token.strip():
+        raise HTTPException(status_code=401, detail="Firebase sign-in is required")
+
+    firebase_app = get_firebase_app()
+    try:
+        decoded_token = firebase_auth.verify_id_token(
+            token.strip(),
+            app=firebase_app,
+            check_revoked=True,
+        )
+        return decoded_token
+    except (FirebaseError, ValueError, TypeError) as error:
+        raise HTTPException(status_code=401, detail="Invalid or expired Firebase session") from error
 
 
 @app.get("/health")
 async def health() -> dict[str, str]:
-    return {"status": "ok", "service": "VORION AI Gateway", "version": "0.1.0"}
+    return {"status": "ok", "service": "VORION AI Gateway", "version": "0.2.0"}
 
 
 @app.post("/v1/chat/completions", response_model=ChatResponse)
 async def chat(
     request: ChatRequest,
-    _authorized: None = Depends(require_app_token),
+    _user: dict = Depends(require_firebase_user),
 ) -> ChatResponse:
     api_key = os.getenv("AI_PROVIDER_API_KEY", "")
     model = os.getenv("AI_PROVIDER_MODEL", "")
