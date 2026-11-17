@@ -79,7 +79,11 @@ class VorionApiClient(
             httpClient.newCall(request).execute().use { response ->
                 val responseText = response.body?.string().orEmpty()
                 if (!response.isSuccessful) {
-                    throw IOException("VORION gateway request failed (${response.code}).")
+                    val detail = runCatching {
+                        JSONObject(responseText).optString("detail").takeIf { it.isNotBlank() }
+                    }.getOrNull()
+                    val suffix = detail?.let { ": $it" }.orEmpty()
+                    throw IOException("VORION gateway request failed (${response.code})$suffix")
                 }
                 val json = JSONObject(responseText)
                 val answer = json.optString("assistant").trim()
