@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from typing import Literal
 
@@ -11,6 +12,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
 app = FastAPI(title="VORION AI Gateway", version="0.2.0")
+logger = logging.getLogger("vorion.gateway")
 
 VORION_SYSTEM_PROMPT = (
     "You are VORION AI, an independent intelligent assistant. "
@@ -80,6 +82,8 @@ def require_firebase_user(
         )
         return decoded_token
     except (FirebaseError, ValueError, TypeError) as error:
+        # Log only the exception class; never log the Firebase ID token.
+        logger.warning("Firebase ID token verification failed: %s", type(error).__name__)
         raise HTTPException(status_code=401, detail="Invalid or expired Firebase session") from error
 
 
