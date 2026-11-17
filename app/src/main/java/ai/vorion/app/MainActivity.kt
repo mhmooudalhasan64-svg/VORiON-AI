@@ -96,7 +96,7 @@ private fun VorionChatScreen() {
             // Connect this to the real sign-in/session flow before enabling live inference.
             sessionTokenProvider = {
                 com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
-                    ?.getIdToken(false)?.let { kotlinx.coroutines.tasks.await(it).token }
+                    ?.getIdToken(false)?.let { it.await().token }
             }
         )
     }
