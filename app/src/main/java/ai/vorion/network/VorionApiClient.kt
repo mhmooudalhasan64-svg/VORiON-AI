@@ -35,7 +35,7 @@ data class VorionReply(
  */
 class VorionApiClient(
     private val gatewayBaseUrl: String,
-    private val sessionTokenProvider: () -> String?,
+    private val sessionTokenProvider: suspend () -> String?,
     private val httpClient: OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(50, TimeUnit.SECONDS)
