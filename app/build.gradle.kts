@@ -1,9 +1,3 @@
-val configuredGatewayUrl = providers.gradleProperty("VORION_GATEWAY_URL")
-    .orElse("")
-    .get()
-    .replace("\\", "\\\\")
-    .replace("\"", "\\\"")
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -19,7 +13,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
-        buildConfigField("String", "VORION_GATEWAY_URL", "\"$configuredGatewayUrl\"")
+        buildConfigField("String", "VORION_GATEWAY_URL", "\"${providers.gradleProperty("VORION_GATEWAY_URL").orElse("").get()}\"")
     }
     buildFeatures {
         compose = true
