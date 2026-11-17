@@ -55,7 +55,7 @@ async def chat(
 ) -> ChatResponse:
     api_key = os.getenv("AI_PROVIDER_API_KEY", "")
     model = os.getenv("AI_PROVIDER_MODEL", "")
-    base_url = os.getenv("AI_PROVIDER_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+    base_url = os.getenv("AI_PROVIDER_BASE_URL", "https://openrouter.ai/api/v1").rstrip("/")
     if not api_key or not model:
         raise HTTPException(status_code=503, detail="AI provider is not configured")
 

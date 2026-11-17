@@ -32,8 +32,20 @@ Set these environment variables on the backend host (never in the Android app):
 
 - VORION_APP_TOKEN — a long, random application access token.
 - AI_PROVIDER_API_KEY — secret key for the selected AI provider.
-- AI_PROVIDER_MODEL — model identifier supported by that provider.
-- AI_PROVIDER_BASE_URL — optional OpenAI-compatible API base URL; defaults to https://api.openai.com/v1.
+- AI_PROVIDER_MODEL — model identifier supported by the selected provider (for OpenRouter, use its `provider/model` slug).
+- AI_PROVIDER_BASE_URL — optional OpenAI-compatible API base URL; defaults to `https://openrouter.ai/api/v1`.
+
+### OpenRouter setup
+
+For OpenRouter, configure the backend host with:
+
+~~~env
+AI_PROVIDER_BASE_URL=https://openrouter.ai/api/v1
+AI_PROVIDER_API_KEY=<your OpenRouter secret key>
+AI_PROVIDER_MODEL=<provider/model slug selected from the OpenRouter model catalog>
+~~~
+
+Keep `AI_PROVIDER_API_KEY` only in the backend host's secret/environment-variable settings. Never commit it to this repository or include it in the Android app. OpenRouter uses the standard Bearer authorization header and the OpenAI-compatible Chat Completions endpoint.
 
 Start locally with:
 
