@@ -2,7 +2,7 @@ name: Android build
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/firebase-auth-vorion]
   pull_request:
     branches: [main]
   workflow_dispatch:
