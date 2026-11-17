@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "82959021562",
+    "project_id": "vorion-ai-bdd6b",
+    "storage_bucket": "vorion-ai-bdd6b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:82959021562:android:9d1baa0f10ca4347412043",
+        "android_client_info": {
+          "package_name": "ai.vorion.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCTLFekv9Q2QdkqHXLE9WKQeq6GCBozZg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -35,7 +35,7 @@ data class VorionReply(
  */
 class VorionApiClient(
     private val gatewayBaseUrl: String,
-    private val sessionTokenProvider: () -> String?,
+    private val sessionTokenProvider: suspend () -> String?,
     private val httpClient: OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(50, TimeUnit.SECONDS)
@@ -79,7 +79,11 @@ class VorionApiClient(
             httpClient.newCall(request).execute().use { response ->
                 val responseText = response.body?.string().orEmpty()
                 if (!response.isSuccessful) {
-                    throw IOException("VORION gateway request failed (${response.code}).")
+                    val detail = runCatching {
+                        JSONObject(responseText).optString("detail").takeIf { it.isNotBlank() }
+                    }.getOrNull()
+                    val suffix = detail?.let { ": $it" }.orEmpty()
+                    throw IOException("VORION gateway request failed (${response.code})$suffix")
                 }
                 val json = JSONObject(responseText)
                 val answer = json.optString("assistant").trim()
