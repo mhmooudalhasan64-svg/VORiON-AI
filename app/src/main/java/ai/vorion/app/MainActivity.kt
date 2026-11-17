@@ -170,39 +170,27 @@ private fun VorionChatScreen() {
             }
 
             if (showCall) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .background(Panel, RoundedCornerShape(22.dp))
-                        .padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    VorionHologram(
-                        state = HologramState.IDLE,
-                        modifier = Modifier.padding(bottom = 18.dp),
-                        size = 220.dp
-                    )
-                    Text("VORION AI", color = Gold, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                    Text("مساحة الاتصال الصوتي", color = SoftText, fontSize = 15.sp,
-                        modifier = Modifier.padding(top = 8.dp))
-                    Text(
-                        "واجهة المكالمة جاهزة. ربط الصوت المباشر ثنائي الاتجاه سيُفعّل بعد استكمال المصادقة الآمنة وخدمة الصوت.",
-                        color = Muted, fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 12.dp),
-                        lineHeight = 19.sp
-                    )
-                    Button(
-                        onClick = { showCall = false },
-                        modifier = Modifier.padding(top = 24.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF8F2929),
-                            contentColor = Color.White
-                        ),
-                        shape = RoundedCornerShape(16.dp)
-                    ) { Text("إنهاء والعودة إلى الدردشة") }
-                }
+                VorionVoiceCallScreen(
+                    onSendMessage = { spokenText, onReply ->
+                        conversation.add(ConversationLine("user", spokenText))
+                        scope.launch {
+                            try {
+                                if (gatewayUrl.isBlank()) {
+                                    throw IllegalStateException("لم يتم إعداد خادم VORION بعد.")
+                                }
+                                val history = conversation.takeLast(20)
+                                    .map { VorionMessage(it.role, it.text) }
+                                val reply = apiClient.sendMessage(history)
+                                conversation.add(ConversationLine("assistant", reply.text))
+                                onReply(reply.text)
+                            } catch (error: Exception) {
+                                status = error.message ?: "تعذر الاتصال بخادم VORION."
+                                onReply("تعذر الاتصال بالمساعد حالياً. يلزم إكمال إعداد الخادم وتسجيل الدخول.")
+                            }
+                        }
+                    },
+                    onEndCall = { showCall = false }
+                )
             } else {
             LazyColumn(
                 modifier = Modifier
