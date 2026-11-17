@@ -41,6 +41,7 @@ import ai.vorion.hologram.VorionHologram
 import ai.vorion.network.VorionApiClient
 import ai.vorion.network.VorionMessage
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 private val Background = Color(0xFF070707)
 private val Panel = Color(0xFF121212)
