@@ -7,7 +7,6 @@ plugins {
 android {
     namespace = "ai.vorion.app"
     compileSdk = 35
-
     defaultConfig {
         applicationId = "ai.vorion.app"
         minSdk = 26
@@ -15,7 +14,6 @@ android {
         versionCode = 1
         versionName = "0.1.0"
     }
-
     buildFeatures { compose = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -32,5 +30,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
