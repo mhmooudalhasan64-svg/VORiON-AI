@@ -1,35 +1,63 @@
 # VORION AI
 
-VORION AI is an independent, extensible intelligent-assistant project.
+VORION AI is an independent intelligent-assistant project with its own name, product identity, interaction layer, and extensible intelligence gateway.
 
-## Initial milestone — 0.1.0
+## Current milestone — 0.1.0 foundation
 
-This repository starts with an Android-native foundation and a reusable holographic presence component. The first milestone focuses on the presentation layer and explicit assistant states; it does not yet provide wake-word detection, system-wide device control, a backend AI model, or background listening.
+The repository contains:
+- An Android-native Kotlin and Jetpack Compose foundation.
+- A reusable animated holographic presence component with explicit assistant states.
+- A provider-neutral FastAPI gateway for external AI inference.
+- An Android HTTP client that talks only to the VORION gateway.
+- A GitHub Actions workflow that attempts a debug Android build.
 
-## Android app
+## Architecture
 
-- Kotlin
-- Jetpack Compose
-- Material 3
-- Minimum Android version: API 26
+1. **VORION Android app** — user interface, future voice pipeline, and permission-aware device integrations.
+2. **VORION gateway** — validates app access, applies the VORION system identity, and forwards requests to a configured compatible AI provider.
+3. **External model provider** — replaceable inference engine. Its identity and credentials are not part of the Android UI or APK.
+4. **Future VORION intelligence layer** — orchestration, memory, tool execution, evaluation, and eventually specialized models.
 
-Open the repository in Android Studio and sync the Gradle project.
+## Backend configuration
+
+Run from the backend directory:
+
+~~~bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+~~~
+
+Set these environment variables on the backend host (never in the Android app):
+
+- VORION_APP_TOKEN — a long, random application access token.
+- AI_PROVIDER_API_KEY — secret key for the selected AI provider.
+- AI_PROVIDER_MODEL — model identifier supported by that provider.
+- AI_PROVIDER_BASE_URL — optional OpenAI-compatible API base URL; defaults to https://api.openai.com/v1.
+
+Start locally with:
+
+~~~bash
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+~~~
+
+Health check: GET /health
+
+Chat endpoint: POST /v1/chat/completions with a Bearer app token and a JSON body containing a messages array. Only user and assistant roles are accepted from clients; the gateway inserts the VORION system identity itself.
+
+## Android gateway client
+
+The ai.vorion.network.VorionApiClient class accepts a gateway base URL and a session-token provider. The app must obtain its access token through a real authentication/session flow. Do not hardcode the backend token or provider API key in source code, Gradle files, or the APK.
+
+## Security and release status
+
+- Use HTTPS for any deployed gateway.
+- Keep provider credentials exclusively in backend environment variables/secrets.
+- The current shared app token is a bootstrap mechanism, not a production user-authentication system. Before public release, add per-user authentication, rate limiting, quotas, abuse monitoring, and secret rotation.
+- Sensitive device actions must require explicit confirmation and Android permissions.
+- No wake-word detection, background listening, device-wide control, production backend deployment, or production authentication has been completed.
+- A workflow has been added to verify Android compilation. Until it completes successfully and the APK is tested on a device, this is not a release-ready build.
 
 ## Hologram states
 
-`IDLE`, `LISTENING`, `THINKING`, `SPEAKING`, `EXECUTING`, `SUCCESS`, `WARNING`, and `ERROR`.
-
-The UI component accepts an `audioLevel` value so a future audio pipeline can drive the visual response. No microphone access is performed by the component itself.
-
-## Planned architecture
-
-1. Android client and holographic UI.
-2. Assistant orchestration and tool-permission layer.
-3. Secure backend/API integration.
-4. Optional memory, voice, vision, and device integrations.
-
-Sensitive actions must require explicit user confirmation. Platform permissions and Android restrictions apply.
-
-## Status
-
-Foundation scaffold only. Build verification and device testing are still required before calling this a release.
+IDLE, LISTENING, THINKING, SPEAKING, EXECUTING, SUCCESS, WARNING, and ERROR.
