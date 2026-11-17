@@ -30,7 +30,8 @@ pip install -r requirements.txt
 
 Set these environment variables on the backend host (never in the Android app):
 
-- VORION_APP_TOKEN — a long, random application access token.
+- FIREBASE_PROJECT_ID — `vorion-ai-bdd6b`.
+- FIREBASE_SERVICE_ACCOUNT_JSON — the Firebase Admin service-account JSON stored as a sensitive backend environment variable (never commit this file or value).
 - AI_PROVIDER_API_KEY — secret key for the selected AI provider.
 - AI_PROVIDER_MODEL — model identifier supported by the selected provider (for OpenRouter, use its `provider/model` slug).
 - AI_PROVIDER_BASE_URL — optional OpenAI-compatible API base URL; defaults to `https://openrouter.ai/api/v1`.
@@ -65,7 +66,8 @@ The ai.vorion.network.VorionApiClient class accepts a gateway base URL and a ses
 
 - Use HTTPS for any deployed gateway.
 - Keep provider credentials exclusively in backend environment variables/secrets.
-- The current shared app token is a bootstrap mechanism, not a production user-authentication system. Before public release, add per-user authentication, rate limiting, quotas, abuse monitoring, and secret rotation.
+- Firebase Authentication uses per-user ID tokens; the gateway verifies each token with Firebase Admin and checks revocation.
+- Configure Email/Password sign-in in Firebase Console and provide the backend with a Firebase Admin service account through a secret environment variable.
 - Sensitive device actions must require explicit confirmation and Android permissions.
 - No wake-word detection, background listening, device-wide control, production backend deployment, or production authentication has been completed.
 - A workflow has been added to verify Android compilation. Until it completes successfully and the APK is tested on a device, this is not a release-ready build.
