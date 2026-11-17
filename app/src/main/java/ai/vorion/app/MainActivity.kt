@@ -85,6 +85,7 @@ private fun VorionChatScreen() {
     var hologramState by remember { mutableStateOf(HologramState.IDLE) }
     var status by remember { mutableStateOf("الاتصال بالخادم غير مُعدّ بعد") }
     var sending by remember { mutableStateOf(false) }
+    var showCall by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     val gatewayUrl = BuildConfig.VORION_GATEWAY_URL
@@ -144,6 +145,65 @@ private fun VorionChatScreen() {
                 modifier = Modifier.padding(top = 5.dp, bottom = 12.dp)
             )
 
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Button(
+                    onClick = { showCall = false },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (!showCall) Gold else Panel,
+                        contentColor = if (!showCall) Background else SoftText
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text("الدردشة") }
+                Button(
+                    onClick = { showCall = true },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (showCall) Gold else Panel,
+                        contentColor = if (showCall) Background else SoftText
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text("اتصال صوتي") }
+            }
+
+            if (showCall) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .background(Panel, RoundedCornerShape(22.dp))
+                        .padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    VorionHologram(
+                        state = HologramState.IDLE,
+                        modifier = Modifier.padding(bottom = 18.dp),
+                        size = 220.dp
+                    )
+                    Text("VORION AI", color = Gold, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                    Text("مساحة الاتصال الصوتي", color = SoftText, fontSize = 15.sp,
+                        modifier = Modifier.padding(top = 8.dp))
+                    Text(
+                        "واجهة المكالمة جاهزة. ربط الصوت المباشر ثنائي الاتجاه سيُفعّل بعد استكمال المصادقة الآمنة وخدمة الصوت.",
+                        color = Muted, fontSize = 12.sp,
+                        modifier = Modifier.padding(top = 12.dp),
+                        lineHeight = 19.sp
+                    )
+                    Button(
+                        onClick = { showCall = false },
+                        modifier = Modifier.padding(top = 24.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF8F2929),
+                            contentColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(16.dp)
+                    ) { Text("إنهاء والعودة إلى الدردشة") }
+                }
+            } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -246,6 +306,7 @@ private fun VorionChatScreen() {
                 ) {
                     Text(if (sending) "..." else "إرسال", fontWeight = FontWeight.Bold)
                 }
+            }
             }
             Text(
                 text = "الإصدار التأسيسي 0.1.0",
