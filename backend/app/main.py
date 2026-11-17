@@ -60,9 +60,11 @@ def get_firebase_app():
             {"projectId": project_id},
         )
     except Exception as error:
+        failure_type = type(error).__name__
+        logger.error("Firebase Admin initialization failed: %s", failure_type)
         raise HTTPException(
             status_code=503,
-            detail="Firebase Admin authentication is not configured on the gateway",
+            detail=f"Firebase Admin initialization failed ({failure_type})",
         ) from error
 
 
