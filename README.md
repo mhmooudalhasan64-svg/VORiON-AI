@@ -56,11 +56,11 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 Health check: GET /health
 
-Chat endpoint: POST /v1/chat/completions with a Bearer app token and a JSON body containing a messages array. Only user and assistant roles are accepted from clients; the gateway inserts the VORION system identity itself.
+Chat endpoint: POST /v1/chat/completions with a Firebase Authentication ID token in the Bearer header and a JSON body containing a messages array. Only user and assistant roles are accepted from clients; the gateway inserts the VORION system identity itself.
 
 ## Android gateway client
 
-The ai.vorion.network.VorionApiClient class accepts a gateway base URL and a session-token provider. The app must obtain its access token through a real authentication/session flow. Do not hardcode the backend token or provider API key in source code, Gradle files, or the APK.
+The ai.vorion.network.VorionApiClient class accepts a gateway base URL and a session-token provider. The app obtains a Firebase Authentication ID token from the signed-in user and refreshes it through the Firebase SDK. Do not hardcode Firebase Admin credentials or provider API keys in source code, Gradle files, or the APK.
 
 ## Security and release status
 
