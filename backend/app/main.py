@@ -83,8 +83,13 @@ def require_firebase_user(
         return decoded_token
     except (FirebaseError, ValueError, TypeError) as error:
         # Log only the exception class; never log the Firebase ID token.
-        logger.warning("Firebase ID token verification failed: %s", type(error).__name__)
-        raise HTTPException(status_code=401, detail="Invalid or expired Firebase session") from error
+        failure_type = type(error).__name__
+        logger.warning("Firebase ID token verification failed: %s", failure_type)
+        # Expose only the Firebase exception class, never token contents or user data.
+        raise HTTPException(
+            status_code=401,
+            detail=f"Firebase token verification failed ({failure_type})",
+        ) from error
 
 
 @app.get("/health")
